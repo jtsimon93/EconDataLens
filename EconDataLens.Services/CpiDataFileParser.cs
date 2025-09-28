@@ -19,8 +19,7 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     public async IAsyncEnumerable<CpiArea> ParseCpiAreasAsync(string? filePath, CancellationToken ct = default)
     {
-        // If filepath is empty, use the default
-        if (string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.AreaFile);
 
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Area file not found at path: {filePath}");
