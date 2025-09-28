@@ -176,7 +176,57 @@ public class CpiRepository : ICpiRepository
 
     public async Task UpsertCpiPeriodAsync(IAsyncEnumerable<CpiPeriod> periods, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var conn = (NpgsqlConnection)_dbContext.Database.GetDbConnection();
+        if (conn.State != ConnectionState.Open) await conn.OpenAsync(ct);
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await conn.BeginTransactionAsync(ct);
+
+            await using (var cmd = new NpgsqlCommand("""
+                                                     CREATE TEMP TABLE tmp_cpi_period (
+                                                     period VARCHAR(3) PRIMARY KEY,
+                                                     period_abbreviation VARCHAR(5) NOT NULL,
+                                                     period_name VARCHAR(20) NOT NULL 
+                                                     ) ON COMMIT DROP;
+                                                     """, conn, tx))
+            {
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+
+            await using (var writer = await conn.BeginBinaryImportAsync(
+                             "COPY tmp_cpi_period (period, period_abbreviation, period_name) FROM STDIN (FORMAT BINARY)",
+                             ct))
+            {
+                await foreach (var p in periods.WithCancellation(ct))
+                {
+                    await writer.StartRowAsync(ct);
+                    await writer.WriteAsync(p.Period, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(p.PeriodAbbreviation, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(p.PeriodName, NpgsqlDbType.Text, ct);
+                }
+
+                await writer.CompleteAsync(ct);
+            }
+            
+            // one upsert
+            await using (var upsert = new NpgsqlCommand("""
+                                                        INSERT INTO cpi_period (period, period_abbreviation, period_name)
+                                                        SELECT period, period_abbreviation, period_name FROM tmp_cpi_period
+                                                        ON CONFLICT (period) DO UPDATE SET 
+                                                          period_abbreviation = EXCLUDED.period_abbreviation,
+                                                          period_name = EXCLUDED.period_name;
+                                                        """, conn, tx))
+            {
+                await upsert.ExecuteNonQueryAsync(ct);
+            }
+
+            await tx.CommitAsync(ct);
+
+        });
+
+        _dbContext.ChangeTracker.Clear();
     }
 
     public async Task UpsertCpiSeriesAsync(IAsyncEnumerable<CpiSeries> series, CancellationToken ct = default)
