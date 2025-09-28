@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Services", "Ec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Repositories", "EconDataLens.Repositories\EconDataLens.Repositories.csproj", "{F6029051-73C2-4DA2-8DD7-63E53150D703}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Tests", "EconDataLens.Tests\EconDataLens.Tests.csproj", "{8F15C95D-F297-4F5B-A617-19036AB4B589}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F15C95D-F297-4F5B-A617-19036AB4B589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F15C95D-F297-4F5B-A617-19036AB4B589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F15C95D-F297-4F5B-A617-19036AB4B589}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F15C95D-F297-4F5B-A617-19036AB4B589}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
