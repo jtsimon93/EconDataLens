@@ -41,8 +41,8 @@ public class CpiIngestionService : ICpiIngestionService
     }
 
     /// <summary>
-    /// Downloads the CPI Footnote file from BLS, parses it, and upserts the data into the database.
-    /// Utilizes streaming to handle large files efficiently.
+    ///     Downloads the CPI Footnote file from BLS, parses it, and upserts the data into the database.
+    ///     Utilizes streaming to handle large files efficiently.
     /// </summary>
     public async Task ImportFootnoteAsync(CancellationToken ct = default)
     {
@@ -51,5 +51,17 @@ public class CpiIngestionService : ICpiIngestionService
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
 
         await _cpiRepository.UpsertCpiFootnotesAsync(_parser.ParseCpiFootnoteAsync(path, ct), ct);
+    }
+
+    /// <summary>
+    ///     Downlods the CPI Item file from BLS, parses it, and upserts the data into the database.
+    ///     Utilizes streaming to handle large files efficiently.
+    /// </summary>
+    public async Task ImportItemAsync(CancellationToken ct = default)
+    {
+        var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.ItemFile;
+        var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.ItemFile);
+        await _fileDownloadService.DownloadFileAsync(url, path, ct);
+        await _cpiRepository.UpsertCpiItemAsync(_parser.ParseCpiItemsAsync(path, ct), ct);
     }
 }
