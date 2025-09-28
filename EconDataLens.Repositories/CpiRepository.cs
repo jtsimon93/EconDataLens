@@ -1,11 +1,10 @@
 ﻿using System.Data;
-using EconDataLens.Core.Configuration;
 using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Core.Interfaces;
 using EconDataLens.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace EconDataLens.Repositories;
 
@@ -46,9 +45,10 @@ public class CpiRepository : ICpiRepository
                 await foreach (var a in areas.WithCancellation(ct))
                 {
                     await writer.StartRowAsync(ct);
-                    await writer.WriteAsync(a.AreaCode, NpgsqlTypes.NpgsqlDbType.Text, ct);
-                    await writer.WriteAsync(a.AreaName, NpgsqlTypes.NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(a.AreaCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(a.AreaName, NpgsqlDbType.Text, ct);
                 }
+
                 await writer.CompleteAsync(ct);
             }
 
@@ -101,13 +101,13 @@ public class CpiRepository : ICpiRepository
                 await foreach (var f in footnotes.WithCancellation(ct))
                 {
                     await writer.StartRowAsync(ct);
-                    await writer.WriteAsync(f.FootnoteCode, NpgsqlTypes.NpgsqlDbType.Text, ct);
-                    await writer.WriteAsync(f.FootnoteText, NpgsqlTypes.NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(f.FootnoteCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(f.FootnoteText, NpgsqlDbType.Text, ct);
                 }
 
                 await writer.CompleteAsync(ct);
             }
-            
+
             // one upsert
             await using (var upsert = new NpgsqlCommand("""
                                                         INSERT INTO cpi_footnote (footnote_code, footnote_text)
@@ -117,17 +117,61 @@ public class CpiRepository : ICpiRepository
             {
                 await upsert.ExecuteNonQueryAsync(ct);
             }
-            
-            await tx.CommitAsync(ct);
 
+            await tx.CommitAsync(ct);
         });
-        
+
         _dbContext.ChangeTracker.Clear();
     }
 
     public async Task UpsertCpiItemAsync(IAsyncEnumerable<CpiItem> cpiItems, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var conn = (NpgsqlConnection)_dbContext.Database.GetDbConnection();
+        if (conn.State != ConnectionState.Open) await conn.OpenAsync(ct);
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await conn.BeginTransactionAsync(ct);
+
+            // temp table
+            await using (var cmd = new NpgsqlCommand("""
+                                                     CREATE TEMP TABLE tmp_cpi_item (
+                                                       item_code VARCHAR(8) PRIMARY KEY, 
+                                                       item_name VARCHAR(100) NOT NULL
+                                                        ) ON COMMIT DROP;
+                                                     """, conn, tx))
+            {
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+
+            await using (var writer = await conn.BeginBinaryImportAsync(
+                             "COPY tmp_cpi_item (item_code, item_name) FROM STDIN (FORMAT BINARY)", ct))
+            {
+                await foreach (var i in cpiItems.WithCancellation(ct))
+                {
+                    await writer.StartRowAsync(ct);
+                    await writer.WriteAsync(i.ItemCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(i.ItemName, NpgsqlDbType.Text, ct);
+                }
+
+                await writer.CompleteAsync(ct);
+            }
+
+            // one upsert
+            await using (var upsert = new NpgsqlCommand("""
+                                                        INSERT INTO cpi_item (item_code, item_name)
+                                                        SELECT item_code, item_name FROM tmp_cpi_item
+                                                        ON CONFLICT (item_code) DO UPDATE SET item_name = EXCLUDED.item_name;
+                                                        """, conn, tx))
+            {
+                await upsert.ExecuteNonQueryAsync(ct);
+            }
+
+            await tx.CommitAsync(ct);
+        });
+
+        _dbContext.ChangeTracker.Clear();
     }
 
     public async Task UpsertCpiPeriodAsync(IAsyncEnumerable<CpiPeriod> periods, CancellationToken ct = default)
