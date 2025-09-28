@@ -74,6 +74,7 @@ public class EconDataLensDbContext : DbContext
         modelBuilder.Entity<CpiData>().HasKey(x => new { x.SeriesId, x.Year, x.Period });
         modelBuilder.Entity<CpiData>().HasOne<CpiSeries>().WithMany().HasForeignKey(x => x.SeriesId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<CpiData>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.Period).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiData>().Property(x => x.Value).HasPrecision(18, 3);
         modelBuilder.Entity<CpiData>().Property(x => x.FootnoteCodes).IsRequired(false);
         modelBuilder.Entity<CpiData>().Property(x => x.SeriesId).HasMaxLength(17);
         modelBuilder.Entity<CpiData>().Property(x => x.Year).HasMaxLength(4);

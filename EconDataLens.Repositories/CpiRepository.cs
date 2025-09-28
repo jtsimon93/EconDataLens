@@ -71,7 +71,65 @@ public class CpiRepository : ICpiRepository
 
     public async Task UpsertCpiDataAsync(IAsyncEnumerable<CpiData> cpiData, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var conn = (NpgsqlConnection)_dbContext.Database.GetDbConnection();
+        if (conn.State != ConnectionState.Open) await conn.OpenAsync(ct);
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await conn.BeginTransactionAsync(ct);
+
+            await using (var cmd = new NpgsqlCommand("""
+                                                     CREATE TEMP TABLE tmp_cpi_data (
+                                                     series_id VARCHAR(17), 
+                                                     year INT,
+                                                     period VARCHAR(3),
+                                                     value NUMERIC(18, 3),
+                                                     footnote_codes VARCHAR(10) NULL
+                                                     ) ON COMMIT DROP;
+                                                     """, conn, tx))
+            {
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+
+            await using (var writer = await conn.BeginBinaryImportAsync(
+                             "COPY tmp_cpi_data (series_id, year, period, value, footnote_codes) FROM STDIN (FORMAT BINARY)",
+                             ct))
+            {
+                await foreach (var d in cpiData.WithCancellation(ct))
+                {
+                    await writer.StartRowAsync(ct);
+                    await writer.WriteAsync(d.SeriesId, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(d.Year, NpgsqlDbType.Integer, ct);
+                    await writer.WriteAsync(d.Period, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(d.Value, NpgsqlDbType.Numeric, ct);
+
+                    if (d.FootnoteCodes != null)
+                        await writer.WriteAsync(d.FootnoteCodes, NpgsqlDbType.Text, ct);
+                    else
+                        await writer.WriteAsync(DBNull.Value, NpgsqlDbType.Text, ct);
+                }
+
+                await writer.CompleteAsync(ct);
+            }
+
+            // one upsert
+            await using (var upsert = new NpgsqlCommand("""
+                                                        INSERT INTO cpi_data (series_id, year, period, value, footnote_codes)
+                                                        SELECT series_id, year, period, value, footnote_codes FROM tmp_cpi_data
+                                                        ON CONFLICT (series_id, year, period) DO UPDATE SET
+                                                        value = EXCLUDED.value,
+                                                        footnote_codes = EXCLUDED.footnote_codes;
+                                                        """, conn, tx))
+            {
+                await upsert.ExecuteNonQueryAsync(ct);
+            }
+
+            await tx.CommitAsync(ct);
+        });
+
+        _dbContext.ChangeTracker.Clear();
     }
 
     public async Task UpsertCpiFootnotesAsync(IAsyncEnumerable<CpiFootnote> footnotes, CancellationToken ct = default)
@@ -209,7 +267,7 @@ public class CpiRepository : ICpiRepository
 
                 await writer.CompleteAsync(ct);
             }
-            
+
             // one upsert
             await using (var upsert = new NpgsqlCommand("""
                                                         INSERT INTO cpi_period (period, period_abbreviation, period_name)
@@ -223,7 +281,6 @@ public class CpiRepository : ICpiRepository
             }
 
             await tx.CommitAsync(ct);
-
         });
 
         _dbContext.ChangeTracker.Clear();
@@ -238,7 +295,7 @@ public class CpiRepository : ICpiRepository
         await strategy.ExecuteAsync(async () =>
         {
             await using var tx = await conn.BeginTransactionAsync(ct);
-            
+
             // temp table
             await using (var cmd = new NpgsqlCommand("""
                                                      CREATE TEMP TABLE tmp_cpi_series (
@@ -276,12 +333,12 @@ public class CpiRepository : ICpiRepository
                     await writer.WriteAsync(s.BaseCode, NpgsqlDbType.Text, ct);
                     await writer.WriteAsync(s.BasePeriod, NpgsqlDbType.Text, ct);
                     await writer.WriteAsync(s.SeriesTitle, NpgsqlDbType.Text, ct);
-                    
+
                     if (s.FootnoteCodes != null)
                         await writer.WriteAsync(s.FootnoteCodes, NpgsqlDbType.Text, ct);
                     else
                         await writer.WriteAsync(DBNull.Value, NpgsqlDbType.Text, ct);
-                    
+
                     await writer.WriteAsync(s.BeginYear, NpgsqlDbType.Integer, ct);
                     await writer.WriteAsync(s.BeginPeriod, NpgsqlDbType.Text, ct);
                     await writer.WriteAsync(s.EndYear, NpgsqlDbType.Integer, ct);
@@ -290,7 +347,7 @@ public class CpiRepository : ICpiRepository
 
                 await writer.CompleteAsync(ct);
             }
-            
+
             // one upsert
             await using (var upsert = new NpgsqlCommand("""
                                                         INSERT INTO cpi_series (series_id, area_code, item_code, seasonal, periodicity_code, base_code, base_period, series_title, footnote_codes, begin_year, begin_period, end_year, end_period)
@@ -311,12 +368,12 @@ public class CpiRepository : ICpiRepository
                                                           end_period = EXCLUDED.end_period;
                                                         """, conn, tx))
             {
-               await upsert.ExecuteNonQueryAsync(ct); 
+                await upsert.ExecuteNonQueryAsync(ct);
             }
 
             await tx.CommitAsync(ct);
         });
-        
+
         _dbContext.ChangeTracker.Clear();
     }
 }
