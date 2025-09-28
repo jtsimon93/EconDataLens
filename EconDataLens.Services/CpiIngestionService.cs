@@ -1,16 +1,16 @@
-﻿namespace EconDataLens.Services;
+﻿using EconDataLens.Core.Configuration;
 using EconDataLens.Core.Interfaces;
-using EconDataLens.Core.Configuration;
-using EconDataLens.Core.Entities.Cpi;
 using Microsoft.Extensions.Options;
+
+namespace EconDataLens.Services;
 
 public class CpiIngestionService : ICpiIngestionService
 {
+    private readonly BlsOptions _blsOptions;
+    private readonly ICpiRepository _cpiRepository;
+    private readonly DownloadOptions _downloadOptions;
     private readonly IFileDownloadService _fileDownloadService;
     private readonly ICpiDataFileParser _parser;
-    private readonly BlsOptions _blsOptions;
-    private readonly DownloadOptions _downloadOptions;
-    private readonly ICpiRepository _cpiRepository;
 
     public CpiIngestionService(
         IFileDownloadService fileDownloadService,
@@ -28,16 +28,28 @@ public class CpiIngestionService : ICpiIngestionService
     }
 
     /// <summary>
-    /// Downloads the CPI Area file from BLS, parses it, and upserts the data into the database.
-    /// Utilizes streaming to handle large files efficiently.
-    /// </summary>  
+    ///     Downloads the CPI Area file from BLS, parses it, and upserts the data into the database.
+    ///     Utilizes streaming to handle large files efficiently.
+    /// </summary>
     public async Task ImportAreasAsync(CancellationToken ct = default)
     {
-        var url  = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.AreaFile;
+        var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.AreaFile;
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.AreaFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
-        
+
         await _cpiRepository.UpsertCpiAreaAsync(_parser.ParseCpiAreasAsync(path, ct), ct);
     }
 
+    /// <summary>
+    /// Downloads the CPI Footnote file from BLS, parses it, and upserts the data into the database.
+    /// Utilizes streaming to handle large files efficiently.
+    /// </summary>
+    public async Task ImportFootnoteAsync(CancellationToken ct = default)
+    {
+        var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.FootnoteFile;
+        var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.FootnoteFile);
+        await _fileDownloadService.DownloadFileAsync(url, path, ct);
+
+        await _cpiRepository.UpsertCpiFootnotesAsync(_parser.ParseCpiFootnoteAsync(path, ct), ct);
+    }
 }
