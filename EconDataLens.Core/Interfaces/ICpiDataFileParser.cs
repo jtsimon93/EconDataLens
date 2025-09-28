@@ -1,5 +1,6 @@
-﻿namespace EconDataLens.Core.Interfaces;
-using EconDataLens.Core.Entities.Cpi;
+﻿using EconDataLens.Core.Entities.Cpi;
+
+namespace EconDataLens.Core.Interfaces;
 
 public interface ICpiDataFileParser
 {

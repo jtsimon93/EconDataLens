@@ -2,6 +2,6 @@
 
 public class DownloadOptions
 {
-    public string DownloadDirectory { get; set; } = "downloads";
     public bool DeleteDownloadedFiles = false;
+    public string DownloadDirectory { get; set; } = "downloads";
 }

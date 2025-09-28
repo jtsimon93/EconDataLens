@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
-using EconDataLens.Core.Entities.Cpi;
+﻿using EconDataLens.Core.Entities.Cpi;
+using Microsoft.EntityFrameworkCore;
 
 namespace EconDataLens.Data;
 
@@ -9,9 +8,9 @@ public class EconDataLensDbContext : DbContext
     public EconDataLensDbContext(DbContextOptions<EconDataLensDbContext> options) : base(options)
     {
     }
-    
+
     // DbSets
-    public DbSet<CpiArea> CpiArea { get; set; } 
+    public DbSet<CpiArea> CpiArea { get; set; }
     public DbSet<CpiData> CpiData { get; set; }
     public DbSet<CpiFootnote> CpiFootnote { get; set; }
     public DbSet<CpiItem> CpiItem { get; set; }
@@ -21,7 +20,7 @@ public class EconDataLensDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        
+
         // Snake case naming convention
         optionsBuilder.UseSnakeCaseNamingConvention();
     }
@@ -51,10 +50,14 @@ public class EconDataLensDbContext : DbContext
         // Note: Don't FK to CpiFootnote since it's a comma-separated list TODO deal with this later
         // Note: Don't FK BasePeriod to CpiPeriod since it's not a period code 
         modelBuilder.Entity<CpiSeries>().HasKey(x => x.SeriesId);
-        modelBuilder.Entity<CpiSeries>().HasOne<CpiArea>().WithMany().HasForeignKey(x => x.AreaCode).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<CpiSeries>().HasOne<CpiItem>().WithMany().HasForeignKey(x => x.ItemCode).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<CpiSeries>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.BeginPeriod).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<CpiSeries>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.EndPeriod).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiSeries>().HasOne<CpiArea>().WithMany().HasForeignKey(x => x.AreaCode)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiSeries>().HasOne<CpiItem>().WithMany().HasForeignKey(x => x.ItemCode)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiSeries>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.BeginPeriod)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiSeries>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.EndPeriod)
+            .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<CpiSeries>().Property(x => x.FootnoteCodes).IsRequired(false);
         modelBuilder.Entity<CpiSeries>().Property(x => x.SeriesId).HasMaxLength(17);
         modelBuilder.Entity<CpiSeries>().Property(x => x.AreaCode).HasMaxLength(4);
@@ -68,12 +71,14 @@ public class EconDataLensDbContext : DbContext
         modelBuilder.Entity<CpiSeries>().Property(x => x.EndYear).HasMaxLength(4);
         modelBuilder.Entity<CpiSeries>().Property(x => x.EndPeriod).HasMaxLength(3);
         modelBuilder.Entity<CpiSeries>().Property(x => x.FootnoteCodes).HasMaxLength(12);
-        
+
         // CPI Data
         // Note: Don't FK to CpiFootnote since it's a comma-separated list TODO deal with this later
         modelBuilder.Entity<CpiData>().HasKey(x => new { x.SeriesId, x.Year, x.Period });
-        modelBuilder.Entity<CpiData>().HasOne<CpiSeries>().WithMany().HasForeignKey(x => x.SeriesId).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<CpiData>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.Period).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiData>().HasOne<CpiSeries>().WithMany().HasForeignKey(x => x.SeriesId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<CpiData>().HasOne<CpiPeriod>().WithMany().HasForeignKey(x => x.Period)
+            .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<CpiData>().Property(x => x.Value).HasPrecision(18, 3);
         modelBuilder.Entity<CpiData>().Property(x => x.FootnoteCodes).IsRequired(false);
         modelBuilder.Entity<CpiData>().Property(x => x.SeriesId).HasMaxLength(17);
@@ -81,6 +86,5 @@ public class EconDataLensDbContext : DbContext
         modelBuilder.Entity<CpiData>().Property(x => x.Period).HasMaxLength(3);
         modelBuilder.Entity<CpiData>().Property(x => x.Value).HasMaxLength(12);
         modelBuilder.Entity<CpiData>().Property(x => x.FootnoteCodes).HasMaxLength(10);
-
     }
 }

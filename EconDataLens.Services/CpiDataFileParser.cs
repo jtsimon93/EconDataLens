@@ -65,8 +65,8 @@ public class CpiDataFileParser : ICpiDataFileParser
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Data file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true, 1 << 16);
+            1 << 16, true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true, 1 << 16);
 
         var isHeader = true;
 
@@ -82,8 +82,8 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 4)
+
+            if (parts.Length < 4)
                 throw new FormatException($"Unexpected number of columns in CPI Data file line: {line}");
 
             yield return new CpiData
@@ -174,16 +174,14 @@ public class CpiDataFileParser : ICpiDataFileParser
     public async IAsyncEnumerable<CpiPeriod> ParseCpiPeriodsAsync(string? filePath, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(filePath))
-        {
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.PeriodFile);
-        }
-        
-        if(!File.Exists(filePath)) throw new FileNotFoundException($"CPI Period file not found at path: {filePath}");
+
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Period file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
-            bufferSize: 1 << 16);
+            1 << 16, true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true,
+            1 << 16);
 
         var isHeader = true;
 
@@ -198,8 +196,8 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 3)
+
+            if (parts.Length < 3)
                 throw new FormatException($"Unexpected number of columns in CPI Period file line: {line}");
 
             yield return new CpiPeriod
@@ -215,14 +213,14 @@ public class CpiDataFileParser : ICpiDataFileParser
     {
         if (string.IsNullOrWhiteSpace(filePath))
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.SeriesFile);
-        
+
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Series file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
+            1 << 16, true);
 
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
-            bufferSize: 1 << 16);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true,
+            1 << 16);
 
         var isHeader = true;
 
@@ -237,8 +235,8 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 13)
+
+            if (parts.Length < 13)
                 throw new FormatException($"Unexpected number of columns in CPI Series file line: {line}");
 
             yield return new CpiSeries

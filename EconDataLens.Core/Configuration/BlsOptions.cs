@@ -2,5 +2,5 @@
 
 public class BlsOptions
 {
-    public CpiOptions Cpi { get; set; } = new CpiOptions();
+    public CpiOptions Cpi { get; set; } = new();
 }

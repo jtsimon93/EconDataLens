@@ -1,13 +1,13 @@
 ﻿using System.Net;
+using EconDataLens.Core.Configuration;
 using EconDataLens.Core.Interfaces;
+using EconDataLens.Data;
+using EconDataLens.Repositories;
+using EconDataLens.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using EconDataLens.Data;
-using EconDataLens.Services;
-using EconDataLens.Core.Configuration;
-using EconDataLens.Repositories;
 
 namespace EconDataLens.Etl;
 
@@ -19,7 +19,7 @@ public class Program
             .ConfigureAppConfiguration((context, config) =>
             {
                 // Loads appsettings.json and environment variables
-                config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                config.AddJsonFile("appsettings.json", true, true)
                     .AddEnvironmentVariables();
             })
             .ConfigureServices((context, services) =>
@@ -29,11 +29,11 @@ public class Program
 
                 services.AddDbContext<EconDataLensDbContext>(options =>
                     options.UseNpgsql(connStr)
-                    );
+                );
 
                 services.Configure<DownloadOptions>(context.Configuration.GetSection("DownloadOptions"));
                 services.Configure<BlsOptions>(context.Configuration.GetSection("BlsOptions"));
-                
+
                 services.AddHttpClient<IFileDownloadService, BasicFileDownloadService>()
                     .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
                     {
@@ -44,7 +44,6 @@ public class Program
                 services.AddScoped<ICpiDataFileParser, CpiDataFileParser>();
                 services.AddScoped<ICpiIngestionService, CpiIngestionService>();
                 services.AddScoped<ICpiEtlService, CpiEtlService>();
-
             })
             .Build();
 
@@ -66,7 +65,7 @@ public class Program
             Console.WriteLine("❌ Failed to connect to database:");
             Console.WriteLine(ex.Message);
         }
-        
+
         try
         {
             Console.WriteLine("Running CPI ETL...");

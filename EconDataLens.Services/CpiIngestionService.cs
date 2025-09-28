@@ -66,8 +66,8 @@ public class CpiIngestionService : ICpiIngestionService
     }
 
     /// <summary>
-    /// Downloads the CPI Period file from BLS, parses it, and upserts the data into the database.
-    /// Utilizes streaming to handle large files efficiently.
+    ///     Downloads the CPI Period file from BLS, parses it, and upserts the data into the database.
+    ///     Utilizes streaming to handle large files efficiently.
     /// </summary>
     public async Task ImportPeriodAsync(CancellationToken ct = default)
     {
@@ -78,8 +78,8 @@ public class CpiIngestionService : ICpiIngestionService
     }
 
     /// <summary>
-    /// Downloads the CPI Series file from BLS, parses it, and upserts the data
-    /// Utilizes streaming to handle large files efficiently
+    ///     Downloads the CPI Series file from BLS, parses it, and upserts the data
+    ///     Utilizes streaming to handle large files efficiently
     /// </summary>
     public async Task ImportSeriesAsync(CancellationToken ct = default)
     {
@@ -90,8 +90,8 @@ public class CpiIngestionService : ICpiIngestionService
     }
 
     /// <summary>
-    /// Downloads the CPI data file from BLS, parses it, and upserts the data into the database.
-    /// Utilizes streaming to handle large files efficiently.
+    ///     Downloads the CPI data file from BLS, parses it, and upserts the data into the database.
+    ///     Utilizes streaming to handle large files efficiently.
     /// </summary>
     public async Task ImportCpiDataAsync(CancellationToken ct = default)
     {
