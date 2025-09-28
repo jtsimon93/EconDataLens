@@ -231,6 +231,92 @@ public class CpiRepository : ICpiRepository
 
     public async Task UpsertCpiSeriesAsync(IAsyncEnumerable<CpiSeries> series, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var conn = (NpgsqlConnection)_dbContext.Database.GetDbConnection();
+        if (conn.State != ConnectionState.Open) await conn.OpenAsync(ct);
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var tx = await conn.BeginTransactionAsync(ct);
+            
+            // temp table
+            await using (var cmd = new NpgsqlCommand("""
+                                                     CREATE TEMP TABLE tmp_cpi_series (
+                                                     series_id VARCHAR(17),
+                                                     area_code VARCHAR(4),
+                                                     item_code VARCHAR(8),
+                                                     seasonal VARCHAR(1),
+                                                     periodicity_code VARCHAR(1),
+                                                     base_code VARCHAR(1),
+                                                     base_period VARCHAR(20),
+                                                     series_title TEXT,
+                                                     footnote_codes VARCHAR(12) NULL,
+                                                     begin_year INT,
+                                                     begin_period VARCHAR(3),
+                                                     end_year INT,
+                                                     end_period VARCHAR(3)
+                                                     ) ON COMMIT DROP;
+                                                     """, conn, tx))
+            {
+                await cmd.ExecuteNonQueryAsync(ct);
+            }
+
+            await using (var writer = await conn.BeginBinaryImportAsync(
+                             "COPY tmp_cpi_series (series_id, area_code, item_code, seasonal, periodicity_code, base_code, base_period, series_title, footnote_codes, begin_year, begin_period, end_year, end_period) FROM STDIN (FORMAT BINARY)",
+                             ct))
+            {
+                await foreach (var s in series.WithCancellation(ct))
+                {
+                    await writer.StartRowAsync(ct);
+                    await writer.WriteAsync(s.SeriesId, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.AreaCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.ItemCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.Seasonal, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.PeriodicityCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.BaseCode, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.BasePeriod, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.SeriesTitle, NpgsqlDbType.Text, ct);
+                    
+                    if (s.FootnoteCodes != null)
+                        await writer.WriteAsync(s.FootnoteCodes, NpgsqlDbType.Text, ct);
+                    else
+                        await writer.WriteAsync(DBNull.Value, NpgsqlDbType.Text, ct);
+                    
+                    await writer.WriteAsync(s.BeginYear, NpgsqlDbType.Integer, ct);
+                    await writer.WriteAsync(s.BeginPeriod, NpgsqlDbType.Text, ct);
+                    await writer.WriteAsync(s.EndYear, NpgsqlDbType.Integer, ct);
+                    await writer.WriteAsync(s.EndPeriod, NpgsqlDbType.Text, ct);
+                }
+
+                await writer.CompleteAsync(ct);
+            }
+            
+            // one upsert
+            await using (var upsert = new NpgsqlCommand("""
+                                                        INSERT INTO cpi_series (series_id, area_code, item_code, seasonal, periodicity_code, base_code, base_period, series_title, footnote_codes, begin_year, begin_period, end_year, end_period)
+                                                        SELECT series_id, area_code, item_code, seasonal, periodicity_code, base_code, base_period, series_title, footnote_codes, begin_year, begin_period, end_year, end_period
+                                                        FROM tmp_cpi_series
+                                                        ON CONFLICT (series_id) DO UPDATE SET 
+                                                          area_code = EXCLUDED.area_code,
+                                                          item_code = EXCLUDED.item_code,
+                                                          seasonal = EXCLUDED.seasonal,
+                                                          periodicity_code = EXCLUDED.periodicity_code,
+                                                          base_code = EXCLUDED.base_code,
+                                                          base_period = EXCLUDED.base_period,
+                                                          series_title = EXCLUDED.series_title,
+                                                          footnote_codes = EXCLUDED.footnote_codes,
+                                                          begin_year = EXCLUDED.begin_year,
+                                                          begin_period = EXCLUDED.begin_period,
+                                                          end_year = EXCLUDED.end_year,
+                                                          end_period = EXCLUDED.end_period;
+                                                        """, conn, tx))
+            {
+               await upsert.ExecuteNonQueryAsync(ct); 
+            }
+
+            await tx.CommitAsync(ct);
+        });
+        
+        _dbContext.ChangeTracker.Clear();
     }
 }

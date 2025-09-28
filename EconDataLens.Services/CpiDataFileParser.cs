@@ -180,7 +180,50 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     public async IAsyncEnumerable<CpiSeries> ParseCpiSeriesAsync(string? filePath, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
-        yield break;
+        if (string.IsNullOrWhiteSpace(filePath))
+            filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.SeriesFile);
+        
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Series file not found at path: {filePath}");
+
+        await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+            bufferSize: 1 << 16, useAsync: true);
+
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
+            bufferSize: 1 << 16);
+
+        var isHeader = true;
+
+        while (await sr.ReadLineAsync(ct) is { } line)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (isHeader)
+            {
+                isHeader = false;
+                continue;
+            }
+
+            var parts = line.Split('\t');
+            
+            if(parts.Length < 13)
+                throw new FormatException($"Unexpected number of columns in CPI Series file line: {line}");
+
+            yield return new CpiSeries
+            {
+                SeriesId = parts[0],
+                AreaCode = parts[1],
+                ItemCode = parts[2],
+                Seasonal = parts[3],
+                PeriodicityCode = parts[4],
+                BaseCode = parts[5],
+                BasePeriod = parts[6],
+                SeriesTitle = parts[7],
+                FootnoteCodes = parts[8],
+                BeginYear = int.Parse(parts[9]),
+                BeginPeriod = parts[10],
+                EndYear = int.Parse(parts[11]),
+                EndPeriod = parts[12]
+            };
+        }
     }
 }

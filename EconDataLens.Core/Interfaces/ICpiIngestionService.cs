@@ -6,4 +6,5 @@ public interface ICpiIngestionService
     Task ImportFootnoteAsync(CancellationToken ct = default);
     Task ImportItemAsync(CancellationToken ct = default);
     Task ImportPeriodAsync(CancellationToken ct = default);
+    Task ImportSeriesAsync(CancellationToken ct = default);
 }
