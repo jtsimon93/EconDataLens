@@ -76,4 +76,16 @@ public class CpiIngestionService : ICpiIngestionService
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
         await _cpiRepository.UpsertCpiPeriodAsync(_parser.ParseCpiPeriodsAsync(path, ct), ct);
     }
+
+    /// <summary>
+    /// Downloads the CPI Series file from BLS, parses it, and upserts the data
+    /// Utilizes streaming to handle large files efficiently
+    /// </summary>
+    public async Task ImportSeriesAsync(CancellationToken ct = default)
+    {
+        var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.SeriesFile;
+        var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.SeriesFile);
+        await _fileDownloadService.DownloadFileAsync(url, path, ct);
+        await _cpiRepository.UpsertCpiSeriesAsync(_parser.ParseCpiSeriesAsync(path, ct), ct);
+    }
 }

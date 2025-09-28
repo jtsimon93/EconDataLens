@@ -20,7 +20,7 @@ public class CpiEtlService : ICpiEtlService
         await _cpiIngestionService.ImportPeriodAsync();
 
         // Phase 2 (Dependent on Phase 1):
-        // This will be CPI Series
+        await _cpiIngestionService.ImportSeriesAsync();
 
         // Phase 3 (Dependent on Phase 2):
         // This will be CPI Data

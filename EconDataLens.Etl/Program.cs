@@ -74,7 +74,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine("❌ Failed to import CPI Areas:");
+            Console.WriteLine("❌ Failed to import CPI data files");
             Console.WriteLine(ex.Message);
         }
     }
