@@ -15,6 +15,7 @@ Contributions of all kinds are welcome — whether you’re fixing a bug, improv
 2. **Make your changes**
 
     - Keep functions and classes small, focused, and documented.
+    - Use standard [C# XML documentation comments](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/recommended-tags) for documenting.
 
 3. **Submit a Pull Request (PR)**
     - Include a clear description of what you changed and _why_.
