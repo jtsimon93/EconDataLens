@@ -64,7 +64,8 @@ namespace EconDataLens.Data.Migrations
 
                     b.Property<decimal>("Value")
                         .HasMaxLength(12)
-                        .HasColumnType("numeric")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("numeric(18,3)")
                         .HasColumnName("value");
 
                     b.HasKey("SeriesId", "Year", "Period")
