@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Net.Http.Headers;
+﻿using System.Net;
 using EconDataLens.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +13,7 @@ namespace EconDataLens.Etl;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         using var host = Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((context, config) =>
@@ -45,6 +43,7 @@ public class Program
                 services.AddScoped<ICpiRepository, CpiRepository>();
                 services.AddScoped<ICpiDataFileParser, CpiDataFileParser>();
                 services.AddScoped<ICpiIngestionService, CpiIngestionService>();
+                services.AddScoped<ICpiEtlService, CpiEtlService>();
 
             })
             .Build();
@@ -54,7 +53,7 @@ public class Program
         // Resolve DbContext and try a connection
         using var scope = host.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<EconDataLensDbContext>();
-        var cpiIngestionService = scope.ServiceProvider.GetRequiredService<ICpiIngestionService>();
+        var cpiEtlService = scope.ServiceProvider.GetRequiredService<ICpiEtlService>();
 
         try
         {
@@ -68,11 +67,10 @@ public class Program
             Console.WriteLine(ex.Message);
         }
         
-        // Demonstration purposes, call CPI Area Import
         try
         {
-            cpiIngestionService.ImportAreasAsync().GetAwaiter().GetResult();
-            Console.WriteLine("✅ CPI Areas imported successfully.");
+            Console.WriteLine("Running CPI ETL...");
+            await cpiEtlService.RunEtlAsync();
         }
         catch (Exception ex)
         {
