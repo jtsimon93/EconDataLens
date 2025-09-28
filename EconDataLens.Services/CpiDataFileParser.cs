@@ -60,8 +60,41 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     public async IAsyncEnumerable<CpiData> ParseCpiDataAsync(string? filePath, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
-        yield break;
+        if (string.IsNullOrWhiteSpace(filePath))
+            filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.DataFile);
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Data file not found at path: {filePath}");
+
+        await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+            bufferSize: 1 << 16, useAsync: true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true, 1 << 16);
+
+        var isHeader = true;
+
+        while (await sr.ReadLineAsync(ct) is { } line)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            if (isHeader)
+            {
+                isHeader = false;
+                continue;
+            }
+
+            var parts = line.Split('\t');
+            
+            if(parts.Length < 4)
+                throw new FormatException($"Unexpected number of columns in CPI Data file line: {line}");
+
+            yield return new CpiData
+            {
+                SeriesId = parts[0],
+                Year = int.Parse(parts[1]),
+                Period = parts[2],
+                Value = decimal.Parse(parts[3]),
+                FootnoteCodes = parts.Length > 4 ? parts[4] : null
+            };
+        }
     }
 
     public async IAsyncEnumerable<CpiFootnote> ParseCpiFootnoteAsync(string? filePath, CancellationToken ct = default)
