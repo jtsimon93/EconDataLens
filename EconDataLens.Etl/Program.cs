@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using EconDataLens.Data;
 using EconDataLens.Services;
+using EconDataLens.Core.Configuration;
+using EconDataLens.Repositories;
 
 namespace EconDataLens.Etl;
 
@@ -26,12 +28,13 @@ public class Program
             {
                 // Register DbContext with connection string from appsettings.json
                 var connStr = context.Configuration.GetConnectionString("Postgres");
-                
-                Console.WriteLine($"Connection string: {connStr}");
 
                 services.AddDbContext<EconDataLensDbContext>(options =>
                     options.UseNpgsql(connStr)
                     );
+
+                services.Configure<DownloadOptions>(context.Configuration.GetSection("DownloadOptions"));
+                services.Configure<BlsOptions>(context.Configuration.GetSection("BlsOptions"));
                 
                 services.AddHttpClient<IFileDownloadService, BasicFileDownloadService>()
                     .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
@@ -39,19 +42,19 @@ public class Program
                         AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
                     });
 
+                services.AddScoped<ICpiRepository, CpiRepository>();
+                services.AddScoped<ICpiDataFileParser, CpiDataFileParser>();
+                services.AddScoped<ICpiIngestionService, CpiIngestionService>();
+
             })
             .Build();
 
-        // This is just a basic proof of concept to test the database connection and download
-        Console.WriteLine("Hello. Connecting to database...");
+        Console.WriteLine("🔧 Starting ETL process...");
 
         // Resolve DbContext and try a connection
         using var scope = host.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<EconDataLensDbContext>();
-        
-        // Resolve file download service and try a download
-        var downloader = scope.ServiceProvider.GetRequiredService<IFileDownloadService>();
-        
+        var cpiIngestionService = scope.ServiceProvider.GetRequiredService<ICpiIngestionService>();
 
         try
         {
@@ -62,6 +65,18 @@ public class Program
         catch (Exception ex)
         {
             Console.WriteLine("❌ Failed to connect to database:");
+            Console.WriteLine(ex.Message);
+        }
+        
+        // Demonstration purposes, call CPI Area Import
+        try
+        {
+            cpiIngestionService.ImportAreasAsync().GetAwaiter().GetResult();
+            Console.WriteLine("✅ CPI Areas imported successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Failed to import CPI Areas:");
             Console.WriteLine(ex.Message);
         }
     }
