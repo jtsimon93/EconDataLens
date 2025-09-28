@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\EconDataLens.Core\EconDataLens.Core.csproj" />
       <ProjectReference Include="..\EconDataLens.Data\EconDataLens.Data.csproj" />
+      <ProjectReference Include="..\EconDataLens.Repositories\EconDataLens.Repositories.csproj" />
       <ProjectReference Include="..\EconDataLens.Services\EconDataLens.Services.csproj" />
     </ItemGroup>
 
