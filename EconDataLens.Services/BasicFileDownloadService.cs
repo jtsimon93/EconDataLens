@@ -61,12 +61,13 @@ public class BasicFileDownloadService : IFileDownloadService
         if (File.Exists(destinationPath))
         {
             File.Replace(tempPath, destinationPath, destinationPath + ".backup", ignoreMetadataErrors: true);
-            File.Delete(destinationPath);
         }
-        
-        File.Move(tempPath, destinationPath);
+        else
+        {
+            File.Move(tempPath, destinationPath);
+        }
 
-        // Cleanup stray temp if replace filed mid way
+        // Cleanup stray temp if replace filed mid-way
         if (File.Exists(tempPath)) File.Delete(tempPath);
 
         return destinationPath;
