@@ -4,6 +4,18 @@ using Microsoft.Extensions.Configuration;
 
 namespace EconDataLens.Data;
 
+/// <summary>
+///     Design-time factory for creating <see cref="EconDataLensDbContext" /> instances.
+/// </summary>
+/// <remarks>
+///     This factory is used by Entity Framework Core tools (e.g.,
+///     <c>dotnet ef migrations add</c>, <c>dotnet ef database update</c>)
+///     to construct a DbContext when one cannot be created via dependency injection.
+///     It resolves configuration from <c>appsettings.json</c>,
+///     environment-specific overrides (<c>appsettings.&lt;Environment&gt;.json</c>),
+///     and environment variables, then builds a context with Npgsql.
+///     This class is not typically used at runtime.
+/// </remarks>
 public class EconDataLensDbContextFactory : IDesignTimeDbContextFactory<EconDataLensDbContext>
 {
     public EconDataLensDbContext CreateDbContext(string[] args)

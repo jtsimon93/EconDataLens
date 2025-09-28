@@ -3,6 +3,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EconDataLens.Data;
 
+/// <summary>
+///     Entity Framework Core database context for EconDataLens.
+/// </summary>
+/// <remarks>
+///     This context configures the schema for EconDataLens, including entities for Consumer Price Index (CPI) data.
+///     Customizations:
+///     <list type="bullet">
+///         <item>
+///             <description>Snake_case naming convention for tables/columns.</description>
+///         </item>
+///         <item>
+///             <description>Composite primary key on <see cref="CpiData" /> (SeriesId, Year, Period).</description>
+///         </item>
+///         <item>
+///             <description>Foreign keys defined for series, items, areas, and periods.</description>
+///         </item>
+///         <item>
+///             <description>Some fields (e.g., footnote codes) are stored as comma-separated lists and not normalized.</description>
+///         </item>
+///     </list>
+/// </remarks>
 public class EconDataLensDbContext : DbContext
 {
     public EconDataLensDbContext(DbContextOptions<EconDataLensDbContext> options) : base(options)
