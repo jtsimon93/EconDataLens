@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Etl", "EconDat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Services", "EconDataLens.Services\EconDataLens.Services.csproj", "{63490F58-898F-4375-B30C-BC296364B982}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EconDataLens.Repositories", "EconDataLens.Repositories\EconDataLens.Repositories.csproj", "{F6029051-73C2-4DA2-8DD7-63E53150D703}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{63490F58-898F-4375-B30C-BC296364B982}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63490F58-898F-4375-B30C-BC296364B982}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63490F58-898F-4375-B30C-BC296364B982}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6029051-73C2-4DA2-8DD7-63E53150D703}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
