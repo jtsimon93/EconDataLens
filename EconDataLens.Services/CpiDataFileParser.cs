@@ -19,8 +19,7 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     public async IAsyncEnumerable<CpiArea> ParseCpiAreasAsync(string? filePath, CancellationToken ct = default)
     {
-        // If filepath is empty, use the default
-        if (string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.AreaFile);
 
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Area file not found at path: {filePath}");
@@ -141,8 +140,42 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     public async IAsyncEnumerable<CpiPeriod> ParseCpiPeriodsAsync(string? filePath, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
-        yield break;
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.PeriodFile);
+        }
+        
+        if(!File.Exists(filePath)) throw new FileNotFoundException($"CPI Period file not found at path: {filePath}");
+
+        await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+            bufferSize: 1 << 16, useAsync: true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
+            bufferSize: 1 << 16);
+
+        var isHeader = true;
+
+        while (await sr.ReadLineAsync(ct) is { } line)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (isHeader)
+            {
+                isHeader = false;
+                continue;
+            }
+
+            var parts = line.Split('\t');
+            
+            if(parts.Length < 3)
+                throw new FormatException($"Unexpected number of columns in CPI Period file line: {line}");
+
+            yield return new CpiPeriod
+            {
+                Period = parts[0],
+                PeriodAbbreviation = parts[1],
+                PeriodName = parts[2]
+            };
+        }
     }
 
     public async IAsyncEnumerable<CpiSeries> ParseCpiSeriesAsync(string? filePath, CancellationToken ct = default)

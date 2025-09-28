@@ -17,6 +17,7 @@ public class CpiEtlService : ICpiEtlService
         await _cpiIngestionService.ImportAreasAsync();
         await _cpiIngestionService.ImportFootnoteAsync();
         await _cpiIngestionService.ImportItemAsync();
+        await _cpiIngestionService.ImportPeriodAsync();
 
         // Phase 2 (Dependent on Phase 1):
         // This will be CPI Series
