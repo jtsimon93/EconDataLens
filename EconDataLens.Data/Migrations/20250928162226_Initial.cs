@@ -113,7 +113,7 @@ namespace EconDataLens.Data.Migrations
                     series_id = table.Column<string>(type: "character varying(17)", maxLength: 17, nullable: false),
                     year = table.Column<int>(type: "integer", maxLength: 4, nullable: false),
                     period = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
-                    value = table.Column<decimal>(type: "numeric", maxLength: 12, nullable: false),
+                    value = table.Column<decimal>(type: "numeric(18,3)", maxLength: 12, precision: 18, scale: 3, nullable: false),
                     footnote_codes = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true)
                 },
                 constraints: table =>

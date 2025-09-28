@@ -52,8 +52,8 @@ public class CpiDataFileParser : ICpiDataFileParser
 
             yield return new CpiArea
             {
-                AreaCode = parts[0],
-                AreaName = parts[1]
+                AreaCode = parts[0].Trim(),
+                AreaName = parts[1].Trim()
             };
         }
     }
@@ -65,8 +65,8 @@ public class CpiDataFileParser : ICpiDataFileParser
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Data file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true, 1 << 16);
+            1 << 16, true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true, 1 << 16);
 
         var isHeader = true;
 
@@ -82,17 +82,17 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 4)
+
+            if (parts.Length < 4)
                 throw new FormatException($"Unexpected number of columns in CPI Data file line: {line}");
 
             yield return new CpiData
             {
-                SeriesId = parts[0],
-                Year = int.Parse(parts[1]),
-                Period = parts[2],
-                Value = decimal.Parse(parts[3]),
-                FootnoteCodes = parts.Length > 4 ? parts[4] : null
+                SeriesId = parts[0].Trim(),
+                Year = int.Parse(parts[1].Trim()),
+                Period = parts[2].Trim(),
+                Value = decimal.Parse(parts[3].Trim()),
+                FootnoteCodes = parts.Length > 4 ? parts[4].Trim() : null
             };
         }
     }
@@ -128,8 +128,8 @@ public class CpiDataFileParser : ICpiDataFileParser
 
             yield return new CpiFootnote
             {
-                FootnoteCode = parts[0],
-                FootnoteText = parts[1]
+                FootnoteCode = parts[0].Trim(),
+                FootnoteText = parts[1].Trim()
             };
         }
     }
@@ -165,8 +165,8 @@ public class CpiDataFileParser : ICpiDataFileParser
 
             yield return new CpiItem
             {
-                ItemCode = parts[0],
-                ItemName = parts[1]
+                ItemCode = parts[0].Trim(),
+                ItemName = parts[1].Trim()
             };
         }
     }
@@ -174,16 +174,14 @@ public class CpiDataFileParser : ICpiDataFileParser
     public async IAsyncEnumerable<CpiPeriod> ParseCpiPeriodsAsync(string? filePath, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(filePath))
-        {
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.PeriodFile);
-        }
-        
-        if(!File.Exists(filePath)) throw new FileNotFoundException($"CPI Period file not found at path: {filePath}");
+
+        if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Period file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
-            bufferSize: 1 << 16);
+            1 << 16, true);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true,
+            1 << 16);
 
         var isHeader = true;
 
@@ -198,15 +196,15 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 3)
+
+            if (parts.Length < 3)
                 throw new FormatException($"Unexpected number of columns in CPI Period file line: {line}");
 
             yield return new CpiPeriod
             {
-                Period = parts[0],
-                PeriodAbbreviation = parts[1],
-                PeriodName = parts[2]
+                Period = parts[0].Trim(),
+                PeriodAbbreviation = parts[1].Trim(),
+                PeriodName = parts[2].Trim()
             };
         }
     }
@@ -215,14 +213,14 @@ public class CpiDataFileParser : ICpiDataFileParser
     {
         if (string.IsNullOrWhiteSpace(filePath))
             filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.SeriesFile);
-        
+
         if (!File.Exists(filePath)) throw new FileNotFoundException($"CPI Series file not found at path: {filePath}");
 
         await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 1 << 16, useAsync: true);
+            1 << 16, true);
 
-        using var sr = new StreamReader(fs, new UTF8Encoding(false), detectEncodingFromByteOrderMarks: true,
-            bufferSize: 1 << 16);
+        using var sr = new StreamReader(fs, new UTF8Encoding(false), true,
+            1 << 16);
 
         var isHeader = true;
 
@@ -237,25 +235,25 @@ public class CpiDataFileParser : ICpiDataFileParser
             }
 
             var parts = line.Split('\t');
-            
-            if(parts.Length < 13)
+
+            if (parts.Length < 13)
                 throw new FormatException($"Unexpected number of columns in CPI Series file line: {line}");
 
             yield return new CpiSeries
             {
-                SeriesId = parts[0],
-                AreaCode = parts[1],
-                ItemCode = parts[2],
-                Seasonal = parts[3],
-                PeriodicityCode = parts[4],
-                BaseCode = parts[5],
-                BasePeriod = parts[6],
-                SeriesTitle = parts[7],
-                FootnoteCodes = parts[8],
-                BeginYear = int.Parse(parts[9]),
-                BeginPeriod = parts[10],
-                EndYear = int.Parse(parts[11]),
-                EndPeriod = parts[12]
+                SeriesId = parts[0].Trim(),
+                AreaCode = parts[1].Trim(),
+                ItemCode = parts[2].Trim(),
+                Seasonal = parts[3].Trim(),
+                PeriodicityCode = parts[4].Trim(),
+                BaseCode = parts[5].Trim(),
+                BasePeriod = parts[6].Trim(),
+                SeriesTitle = parts[7].Trim(),
+                FootnoteCodes = parts[8].Trim(),
+                BeginYear = int.Parse(parts[9].Trim()),
+                BeginPeriod = parts[10].Trim(),
+                EndYear = int.Parse(parts[11].Trim()),
+                EndPeriod = parts[12].Trim()
             };
         }
     }
