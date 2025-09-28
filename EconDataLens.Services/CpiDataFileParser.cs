@@ -69,31 +69,70 @@ public class CpiDataFileParser : ICpiDataFileParser
 
     }
 
-    public async IAsyncEnumerable<CpiData> ParseCpiDataAsync(string? filePath)
+    public async IAsyncEnumerable<CpiData> ParseCpiDataAsync(string? filePath, CancellationToken ct = default)
     {
         throw new NotImplementedException();
         yield break;
     }
 
-    public async IAsyncEnumerable<CpiFootnote> ParseCpiFootnoteAsync(string? filePath)
+    public async IAsyncEnumerable<CpiFootnote> ParseCpiFootnoteAsync(string? filePath, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            filePath = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.FootnoteFile);
+        }
+
+        if (!File.Exists(filePath))
+        {
+            throw new FileNotFoundException($"CPI Footnote file not found at path: {filePath}");
+        }
+
+        await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read,
+            bufferSize: 1 << 16, useAsync: true);
+
+        using var sr = new StreamReader(fs, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+            detectEncodingFromByteOrderMarks: true, bufferSize: 1 << 16);
+
+        var isHeader = true;
+
+        while (await sr.ReadLineAsync(ct) is { } line)
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            if (isHeader)
+            {
+                isHeader = false;
+                continue;
+            }
+
+            var parts = line.Split('\t');
+            if (parts.Length < 2)
+            {
+                throw new FormatException($"Unexpected number of columns in CPI Footnote file line: {line}");
+            }
+
+            yield return new CpiFootnote
+            {
+                FootnoteCode = parts[0],
+                FootnoteText = parts[1]
+            };
+        }
+
+    }
+
+    public async IAsyncEnumerable<CpiItem> ParseCpiItemsAsync(string? filePath, CancellationToken ct = default)
     {
         throw new NotImplementedException();
         yield break;
     }
 
-    public async IAsyncEnumerable<CpiItem> ParseCpiItemsAsync(string? filePath)
+    public async IAsyncEnumerable<CpiPeriod> ParseCpiPeriodsAsync(string? filePath, CancellationToken ct = default)
     {
         throw new NotImplementedException();
         yield break;
     }
 
-    public async IAsyncEnumerable<CpiPeriod> ParseCpiPeriodsAsync(string? filePath)
-    {
-        throw new NotImplementedException();
-        yield break;
-    }
-
-    public async IAsyncEnumerable<CpiSeries> ParseCpiSeriesAsync(string? filePath)
+    public async IAsyncEnumerable<CpiSeries> ParseCpiSeriesAsync(string? filePath, CancellationToken ct = default)
     {
         throw new NotImplementedException();
         yield break;
