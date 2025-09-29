@@ -29,20 +29,11 @@
       <ProjectReference Include="..\EconDataLens.Etl\EconDataLens.Etl.csproj" />
       <ProjectReference Include="..\EconDataLens.Services\EconDataLens.Services.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <None Update="Fixtures\cu.footnote.empty">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Fixtures\cu.footnote.sample">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Fixtures\cu.area.empty">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="Fixtures\cu.area.sample">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <Content Include="Fixtures/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
