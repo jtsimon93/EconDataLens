@@ -5,7 +5,7 @@ using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
 
-namespace EconDataLens.Tests.Services;
+namespace EconDataLens.Tests.ServiceTests;
 
 public class CpiDataParserTests
 {
@@ -36,7 +36,7 @@ public class CpiDataParserTests
     [Test]
     public async Task ParseCpiFootnoteAsync_HeaderOnly_YieldsNoResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.data.0.Current.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.data.0.Current.empty");
         var rows = new List<CpiData>();
 
         await foreach (var row in _parser.ParseCpiDataAsync(path))
@@ -49,7 +49,7 @@ public class CpiDataParserTests
     [Test]
     public async Task ParseCpiDataAsync_FileWithRecords_YieldsResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.data.0.Current.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.data.0.Current.sample");
         var rows = new List<CpiData>();
         
         await foreach (var row in _parser.ParseCpiDataAsync(path))

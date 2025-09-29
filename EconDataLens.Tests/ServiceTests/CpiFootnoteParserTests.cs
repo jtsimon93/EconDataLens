@@ -4,7 +4,7 @@ using EconDataLens.Core.Interfaces;
 using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
-namespace EconDataLens.Tests.Services;
+namespace EconDataLens.Tests.ServiceTests;
 
 [TestFixture]
 public class CpiFootnoteParserTests
@@ -37,7 +37,7 @@ public class CpiFootnoteParserTests
     public async Task ParseCpiFootnoteAsync_HeaderOnly_YieldsNoResults()
     {
         // Arrange
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.footnote.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.footnote.empty");
 
         // Act
         var rows = new List<CpiFootnote>();
@@ -53,7 +53,7 @@ public class CpiFootnoteParserTests
     public async Task ParseCpiFootnoteAsync_FileWithRecords_YieldsResults()
     {
         // Arrange
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.footnote.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.footnote.sample");
 
         // Act
         var rows = new List<CpiFootnote>();
