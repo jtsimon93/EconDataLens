@@ -12,7 +12,7 @@ namespace EconDataLens.Core.Interfaces;
 ///     Transaction and batching semantics are implementation-specific but should ensure reasonable
 ///     atomicity and throughput for large loads. Cancellation should be honored promptly.
 /// </remarks>
-public interface ICpiRepository
+public interface ICpiIngestionRepository
 {
     /// <summary>
     ///     Upserts a collection of CPI area definitions into the repository.

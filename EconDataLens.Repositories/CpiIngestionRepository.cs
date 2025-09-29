@@ -8,11 +8,11 @@ using NpgsqlTypes;
 
 namespace EconDataLens.Repositories;
 
-public class CpiRepository : ICpiRepository
+public class CpiIngestionRepository : ICpiIngestionRepository
 {
     private readonly EconDataLensDbContext _dbContext;
 
-    public CpiRepository(EconDataLensDbContext dbContext)
+    public CpiIngestionRepository(EconDataLensDbContext dbContext)
     {
         _dbContext = dbContext;
     }

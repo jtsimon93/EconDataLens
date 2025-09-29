@@ -7,7 +7,7 @@ namespace EconDataLens.Services;
 public class CpiIngestionService : ICpiIngestionService
 {
     private readonly BlsOptions _blsOptions;
-    private readonly ICpiRepository _cpiRepository;
+    private readonly ICpiIngestionRepository _cpiIngestionRepository;
     private readonly DownloadOptions _downloadOptions;
     private readonly IFileDownloadService _fileDownloadService;
     private readonly ICpiDataFileParser _parser;
@@ -17,14 +17,14 @@ public class CpiIngestionService : ICpiIngestionService
         ICpiDataFileParser parser,
         IOptions<BlsOptions> blsOptions,
         IOptions<DownloadOptions> downloadOptions,
-        ICpiRepository cpiRepository
+        ICpiIngestionRepository cpiIngestionRepository
     )
     {
         _fileDownloadService = fileDownloadService;
         _parser = parser;
         _blsOptions = blsOptions.Value;
         _downloadOptions = downloadOptions.Value;
-        _cpiRepository = cpiRepository;
+        _cpiIngestionRepository = cpiIngestionRepository;
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class CpiIngestionService : ICpiIngestionService
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.AreaFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
 
-        await _cpiRepository.UpsertCpiAreaAsync(_parser.ParseCpiAreasAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiAreaAsync(_parser.ParseCpiAreasAsync(path, ct), ct);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class CpiIngestionService : ICpiIngestionService
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.FootnoteFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
 
-        await _cpiRepository.UpsertCpiFootnotesAsync(_parser.ParseCpiFootnoteAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiFootnotesAsync(_parser.ParseCpiFootnoteAsync(path, ct), ct);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class CpiIngestionService : ICpiIngestionService
         var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.ItemFile;
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.ItemFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
-        await _cpiRepository.UpsertCpiItemAsync(_parser.ParseCpiItemsAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiItemAsync(_parser.ParseCpiItemsAsync(path, ct), ct);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class CpiIngestionService : ICpiIngestionService
         var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.PeriodFile;
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.PeriodFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
-        await _cpiRepository.UpsertCpiPeriodAsync(_parser.ParseCpiPeriodsAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiPeriodAsync(_parser.ParseCpiPeriodsAsync(path, ct), ct);
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class CpiIngestionService : ICpiIngestionService
         var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.SeriesFile;
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.SeriesFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
-        await _cpiRepository.UpsertCpiSeriesAsync(_parser.ParseCpiSeriesAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiSeriesAsync(_parser.ParseCpiSeriesAsync(path, ct), ct);
     }
 
     /// <summary>
@@ -98,6 +98,6 @@ public class CpiIngestionService : ICpiIngestionService
         var url = _blsOptions.Cpi.BaseUrl + _blsOptions.Cpi.DataFile;
         var path = Path.Combine(_downloadOptions.DownloadDirectory, _blsOptions.Cpi.DataFile);
         await _fileDownloadService.DownloadFileAsync(url, path, ct);
-        await _cpiRepository.UpsertCpiDataAsync(_parser.ParseCpiDataAsync(path, ct), ct);
+        await _cpiIngestionRepository.UpsertCpiDataAsync(_parser.ParseCpiDataAsync(path, ct), ct);
     }
 }

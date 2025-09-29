@@ -40,7 +40,7 @@ public class Program
                         AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
                     });
 
-                services.AddScoped<ICpiRepository, CpiRepository>();
+                services.AddScoped<ICpiIngestionRepository, CpiIngestionRepository>();
                 services.AddScoped<ICpiDataFileParser, CpiDataFileParser>();
                 services.AddScoped<ICpiIngestionService, CpiIngestionService>();
                 services.AddScoped<ICpiEtlService, CpiEtlService>();
