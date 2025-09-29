@@ -1,0 +1,6 @@
+item_code	item_name	display_level	selectable	sort_sequence
+AA0	All items - old base	0	T	2
+AA0R	Purchasing power of the consumer dollar - old base	0	T	400
+SA0	All items	0	T	1
+
+
