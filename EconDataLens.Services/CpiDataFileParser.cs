@@ -92,7 +92,7 @@ public class CpiDataFileParser : ICpiDataFileParser
                 Year = int.Parse(parts[1].Trim()),
                 Period = parts[2].Trim(),
                 Value = decimal.Parse(parts[3].Trim()),
-                FootnoteCodes = parts.Length > 4 ? parts[4].Trim() : null
+                FootnoteCodes = parts[4].Trim() == string.Empty ? null : parts[4].Trim()
             };
         }
     }
