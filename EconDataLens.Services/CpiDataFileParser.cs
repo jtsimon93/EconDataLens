@@ -249,7 +249,7 @@ public class CpiDataFileParser : ICpiDataFileParser
                 BaseCode = parts[5].Trim(),
                 BasePeriod = parts[6].Trim(),
                 SeriesTitle = parts[7].Trim(),
-                FootnoteCodes = parts[8].Trim(),
+                FootnoteCodes = parts[8].Trim() == string.Empty ? null : parts[8].Trim(),
                 BeginYear = int.Parse(parts[9].Trim()),
                 BeginPeriod = parts[10].Trim(),
                 EndYear = int.Parse(parts[11].Trim()),
