@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace EconDataLens.Tests.Fixtures.Data;
+namespace EconDataLens.Tests.Fixtures;
 
 [SetUpFixture]
 public class PostgresFixture
