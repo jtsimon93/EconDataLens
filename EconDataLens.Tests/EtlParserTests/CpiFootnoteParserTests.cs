@@ -4,7 +4,7 @@ using EconDataLens.Core.Interfaces;
 using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
-namespace EconDataLens.Tests.ServiceTests;
+namespace EconDataLens.Tests.EtlParserTests;
 
 [TestFixture]
 public class CpiFootnoteParserTests

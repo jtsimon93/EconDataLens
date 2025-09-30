@@ -4,7 +4,7 @@ using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
-namespace EconDataLens.Tests.ServiceTests;
+namespace EconDataLens.Tests.EtlParserTests;
 
 public class CpiPeriodParserTests
 {
