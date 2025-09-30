@@ -2,13 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
-namespace EconDataLens.Tests.Fixtures;
+namespace EconDataLens.Tests;
 
 [SetUpFixture]
 public class PostgresFixture
 {
     private PostgreSqlContainer _container = default!;
-    public string ConnectionString => _container.GetConnectionString();
+    public static string ConnectionString { get; private set; } = string.Empty;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -22,6 +22,7 @@ public class PostgresFixture
             .Build();
 
         await _container.StartAsync();
+        ConnectionString = _container.GetConnectionString();
 
         var options = new DbContextOptionsBuilder<EconDataLensDbContext>()
             .UseNpgsql(ConnectionString)
