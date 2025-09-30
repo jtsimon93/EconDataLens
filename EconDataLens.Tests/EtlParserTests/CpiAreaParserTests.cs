@@ -4,7 +4,7 @@ using EconDataLens.Core.Configuration;
 using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
-namespace EconDataLens.Tests.Services;
+namespace EconDataLens.Tests.EtlParserTests;
 
 public class CpiAreaParserTests
 {
@@ -35,7 +35,7 @@ public class CpiAreaParserTests
    [Test]
    public async Task ParseCpiAreaAsync_HeaderOnly_YieldsNoResults()
    {
-      var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.area.empty");
+      var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.area.empty");
 
       var rows = new List<CpiArea>();
       
@@ -48,7 +48,7 @@ public class CpiAreaParserTests
    [Test]
    public async Task ParseCpiAreaAsync_FileWithRecords_YieldsResults()
    {
-      var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.area.sample");
+      var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.area.sample");
 
       var rows = new List<CpiArea>();
       

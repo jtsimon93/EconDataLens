@@ -4,7 +4,7 @@ using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Services;
 using Microsoft.Extensions.Options;
 
-namespace EconDataLens.Tests.Services;
+namespace EconDataLens.Tests.EtlParserTests;
 
 public class CpiPeriodParserTests
 {
@@ -35,7 +35,7 @@ public class CpiPeriodParserTests
     [Test]
     public async Task ParseCpiPeriodAsync_HeaderOnly_YieldsNoResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.period.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.period.empty");
         var rows = new List<CpiPeriod>();
         
         await foreach (var row in _parser.ParseCpiPeriodsAsync(path))
@@ -47,7 +47,7 @@ public class CpiPeriodParserTests
     [Test]
     public async Task ParseCpiPeriodAsync_FileWithRecords_YieldsResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "Fixtures", "cu.period.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.period.sample");
         var rows = new List<CpiPeriod>();
 
         await foreach (var row in _parser.ParseCpiPeriodsAsync(path))
