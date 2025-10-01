@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace EconDataLens.Tests.EtlRepositoryTests;
 
-public class AreaEtlTests
+public class AreaEtlRepositoryTests
 {
     private EconDataLensDbContext _dbContext = null!;
     private ICpiDataFileParser _parser = null!;
