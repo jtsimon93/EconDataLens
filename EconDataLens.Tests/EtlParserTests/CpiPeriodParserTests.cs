@@ -1,4 +1,4 @@
-﻿using EconDataLens.Core.Configuration;
+using EconDataLens.Core.Configuration;
 using EconDataLens.Core.Interfaces;
 using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Services;
@@ -9,7 +9,7 @@ namespace EconDataLens.Tests.EtlParserTests;
 public class CpiPeriodParserTests
 {
     private ICpiDataFileParser _parser;
-    
+
     [SetUp]
     public void SetUp()
     {
@@ -35,19 +35,19 @@ public class CpiPeriodParserTests
     [Test]
     public async Task ParseCpiPeriodAsync_HeaderOnly_YieldsNoResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.period.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.period.empty");
         var rows = new List<CpiPeriod>();
-        
+
         await foreach (var row in _parser.ParseCpiPeriodsAsync(path))
             rows.Add(row);
-        
+
         Assert.That(rows, Is.Empty);
     }
 
     [Test]
     public async Task ParseCpiPeriodAsync_FileWithRecords_YieldsResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.period.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.period.sample");
         var rows = new List<CpiPeriod>();
 
         await foreach (var row in _parser.ParseCpiPeriodsAsync(path))

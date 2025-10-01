@@ -1,4 +1,4 @@
-﻿using EconDataLens.Core.Interfaces;
+using EconDataLens.Core.Interfaces;
 using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Core.Configuration;
 using EconDataLens.Services;
@@ -9,7 +9,7 @@ namespace EconDataLens.Tests.EtlParserTests;
 public class CpiItemParserTests
 {
     private ICpiDataFileParser _parser;
-    
+
     [SetUp]
     public void SetUp()
     {
@@ -35,26 +35,26 @@ public class CpiItemParserTests
     [Test]
     public async Task ParseCpiItemAsync_HeaderOnly_YieldsNoResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.item.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.item.empty");
         var rows = new List<CpiItem>();
-        
+
         await foreach (var row in _parser.ParseCpiItemsAsync(path))
             rows.Add(row);
-        
+
         Assert.That(rows, Is.Empty);
     }
 
     [Test]
     public async Task ParseCpiItemAsync_FileWithRecords_YieldsResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.item.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.item.sample");
         var rows = new List<CpiItem>();
 
         await foreach (var row in _parser.ParseCpiItemsAsync(path))
             rows.Add(row);
 
         Assert.That(rows, Has.Count.EqualTo(3));
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(rows, Is.Not.Null);

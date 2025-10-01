@@ -1,4 +1,4 @@
-﻿using EconDataLens.Core.Interfaces;
+using EconDataLens.Core.Interfaces;
 using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Core.Configuration;
 using EconDataLens.Services;
@@ -9,7 +9,7 @@ namespace EconDataLens.Tests.EtlParserTests;
 public class CpiSeriesParserTests
 {
     private ICpiDataFileParser _parser;
-    
+
     [SetUp]
     public void SetUp()
     {
@@ -35,7 +35,7 @@ public class CpiSeriesParserTests
     [Test]
     public async Task ParseCpiSeriesAsync_HeaderOnly_YieldsNoResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.series.empty");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.series.empty");
         var rows = new List<CpiSeries>();
 
         await foreach (var row in _parser.ParseCpiSeriesAsync(path))
@@ -43,18 +43,18 @@ public class CpiSeriesParserTests
 
         Assert.That(rows, Is.Empty);
     }
-    
+
     [Test]
     public async Task ParseCpiSeriesAsync_FileWithRecords_YieldsResults()
     {
-        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "cu.series.sample");
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "ParserData", "cu.series.sample");
         var rows = new List<CpiSeries>();
 
         await foreach (var row in _parser.ParseCpiSeriesAsync(path))
             rows.Add(row);
 
         Assert.That(rows, Has.Count.EqualTo(2));
-        
+
         Assert.Multiple(() =>
         {
             Assert.That(rows, Is.Not.Null);
@@ -71,7 +71,7 @@ public class CpiSeriesParserTests
             Assert.That(rows[0].BeginPeriod, Is.EqualTo("M01"));
             Assert.That(rows[0].EndYear, Is.EqualTo(2025));
             Assert.That(rows[0].EndPeriod, Is.EqualTo("M08"));
-            
+
             Assert.That(rows[1].SeriesId, Is.EqualTo("CUSR0000SA0E"));
             Assert.That(rows[1].AreaCode, Is.EqualTo("0000"));
             Assert.That(rows[1].ItemCode, Is.EqualTo("SA0E"));
