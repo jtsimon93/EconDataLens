@@ -1,0 +1,17 @@
+using EconDataLens.Data;
+using Microsoft.EntityFrameworkCore;
+
+[SetUpFixture]
+public class DbReset
+{
+    public static async Task RecreateDatabaseAsync(string connectionString)
+    {
+        var options = new DbContextOptionsBuilder<EconDataLensDbContext>()
+        .UseNpgsql(connectionString)
+        .Options;
+
+        await using var ctx = new EconDataLensDbContext(options);
+        await ctx.Database.EnsureDeletedAsync();
+        await ctx.Database.MigrateAsync();
+    }
+}
