@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Data;
 
@@ -8,10 +8,13 @@ public class DbSmokeTests
 {
     private static EconDataLensDbContext CreateDb()
     {
+        var connectionString = PostgresFixture.ConnectionString;
         var opts = new DbContextOptionsBuilder<EconDataLensDbContext>()
-            .UseNpgsql(PostgresFixture.ConnectionString)
+            .UseNpgsql(connectionString)
             .UseSnakeCaseNamingConvention()
             .Options;
+
+        DbReset.RecreateDatabaseAsync(connectionString).GetAwaiter().GetResult();
 
         return new EconDataLensDbContext(opts);
     }
