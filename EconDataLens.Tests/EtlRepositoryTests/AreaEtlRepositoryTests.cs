@@ -1,4 +1,3 @@
-using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Core.Interfaces;
 using EconDataLens.Core.Configuration;
 using EconDataLens.Services;
@@ -14,7 +13,6 @@ public class AreaEtlRepositoryTests
     private EconDataLensDbContext _dbContext = null!;
     private ICpiDataFileParser _parser = null!;
     private ICpiIngestionRepository _repository = null!;
-    private ICpiIngestionService _service = null!;
     private string _connectionString = string.Empty;
 
     [SetUp]
@@ -61,13 +59,13 @@ public class AreaEtlRepositoryTests
 
         var sample = await _dbContext.CpiArea.FirstOrDefaultAsync(a => a.AreaCode == "0000");
 
-        Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.AreaName, Is.EqualTo("U.S. city average"));
+        Assert.That(sample!, Is.Not.Null);
+        Assert.That(sample!.AreaName, Is.EqualTo("U.S. city average"));
 
         sample = await _dbContext.CpiArea.FirstOrDefaultAsync(a => a.AreaCode == "S49G");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.AreaName, Is.EqualTo("Urban Alaska"));
+        Assert.That(sample!.AreaName, Is.EqualTo("Urban Alaska"));
 
     }
 
@@ -85,13 +83,13 @@ public class AreaEtlRepositoryTests
 
         var sample = await _dbContext.CpiArea.FirstOrDefaultAsync(a => a.AreaCode == "0000");
 
-        Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.AreaName, Is.EqualTo("U.S. city average"));
+        Assert.That(sample!, Is.Not.Null);
+        Assert.That(sample!.AreaName, Is.EqualTo("U.S. city average"));
 
         sample = await _dbContext.CpiArea.FirstOrDefaultAsync(a => a.AreaCode == "S49G");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.AreaName, Is.EqualTo("Urban Alaska"));
+        Assert.That(sample!.AreaName, Is.EqualTo("Urban Alaska"));
 
         // Ingest modified data
 
@@ -105,8 +103,8 @@ public class AreaEtlRepositoryTests
 
         sample = await _dbContext.CpiArea.FirstOrDefaultAsync(a => a.AreaCode == "S49G");
 
-        Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.AreaName, Is.EqualTo("Urban Alaska UPDATED"));
+        Assert.That(sample!, Is.Not.Null);
+        Assert.That(sample!.AreaName, Is.EqualTo("Urban Alaska UPDATED"));
     }
 
     [TearDown]

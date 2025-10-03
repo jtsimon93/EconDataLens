@@ -13,7 +13,6 @@ public class PeriodEtlRepositoryTests
     private EconDataLensDbContext _dbContext = null!;
     private ICpiDataFileParser _parser = null!;
     private ICpiIngestionRepository _repository = null!;
-    private ICpiIngestionService _service = null!;
     private string _connectionString = string.Empty;
 
     [SetUp]
