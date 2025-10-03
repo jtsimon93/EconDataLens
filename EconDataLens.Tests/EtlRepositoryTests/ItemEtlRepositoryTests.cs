@@ -1,4 +1,3 @@
-using EconDataLens.Core.Entities.Cpi;
 using EconDataLens.Core.Interfaces;
 using EconDataLens.Core.Configuration;
 using EconDataLens.Services;
@@ -14,7 +13,6 @@ public class ItemEtlRepositoryTests
     private EconDataLensDbContext _dbContext = null!;
     private ICpiDataFileParser _parser = null!;
     private ICpiIngestionRepository _repository = null!;
-    private ICpiIngestionService _service = null!;
     private string _connectionString = string.Empty;
 
     [SetUp]
@@ -62,12 +60,12 @@ public class ItemEtlRepositoryTests
         var sample = await _dbContext.CpiItem.FirstOrDefaultAsync(i => i.ItemCode == "AA0");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.ItemName, Is.EqualTo("All items - old base"));
+        Assert.That(sample!.ItemName, Is.EqualTo("All items - old base"));
 
         sample = await _dbContext.CpiItem.FirstOrDefaultAsync(i => i.ItemCode == "SSHJ031");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.ItemName, Is.EqualTo("Infants' furniture"));
+        Assert.That(sample!.ItemName, Is.EqualTo("Infants' furniture"));
 
     }
 
@@ -86,12 +84,12 @@ public class ItemEtlRepositoryTests
         var sample = await _dbContext.CpiItem.FirstOrDefaultAsync(i => i.ItemCode == "AA0");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.ItemName, Is.EqualTo("All items - old base"));
+        Assert.That(sample!.ItemName, Is.EqualTo("All items - old base"));
 
         sample = await _dbContext.CpiItem.FirstOrDefaultAsync(i => i.ItemCode == "SSHJ031");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.ItemName, Is.EqualTo("Infants' furniture"));
+        Assert.That(sample!.ItemName, Is.EqualTo("Infants' furniture"));
 
         // Ingest modified data
 
@@ -106,7 +104,7 @@ public class ItemEtlRepositoryTests
         sample = await _dbContext.CpiItem.FirstOrDefaultAsync(i => i.ItemCode == "SSHJ031");
 
         Assert.That(sample, Is.Not.Null);
-        Assert.That(sample.ItemName, Is.EqualTo("Infants' furniture UPDATED"));
+        Assert.That(sample!.ItemName, Is.EqualTo("Infants' furniture UPDATED"));
     }
 
     [TearDown]
