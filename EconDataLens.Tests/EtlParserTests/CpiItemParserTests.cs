@@ -8,7 +8,7 @@ namespace EconDataLens.Tests.EtlParserTests;
 
 public class CpiItemParserTests
 {
-    private ICpiDataFileParser _parser;
+    private ICpiDataFileParser _parser = null!;
 
     [SetUp]
     public void SetUp()

@@ -31,7 +31,7 @@ public class CpiFootnoteParserTests
         _parser = new CpiDataFileParser(blsOptions, downloadOptions);
     }
 
-    private ICpiDataFileParser _parser;
+    private ICpiDataFileParser _parser = null!;
 
     [Test]
     public async Task ParseCpiFootnoteAsync_HeaderOnly_YieldsNoResults()

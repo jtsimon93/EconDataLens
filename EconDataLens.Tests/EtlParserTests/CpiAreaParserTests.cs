@@ -8,7 +8,7 @@ namespace EconDataLens.Tests.EtlParserTests;
 
 public class CpiAreaParserTests
 {
-    private ICpiDataFileParser _parser;
+    private ICpiDataFileParser _parser = null!;
 
     [SetUp]
     public void SetUp()
@@ -74,8 +74,8 @@ public class CpiAreaParserTests
             // Assert row 4 throws index out of range if accessed
             Assert.Throws<ArgumentOutOfRangeException>(() =>
           {
-               var _ = rows[4].AreaCode;
-           });
+              var _ = rows[4].AreaCode;
+          });
         });
     }
 }
