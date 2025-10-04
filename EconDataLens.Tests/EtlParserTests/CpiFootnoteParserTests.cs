@@ -66,9 +66,9 @@ public class CpiFootnoteParserTests
         Assert.Multiple(() =>
         {
             Assert.That(rows, Has.Count.EqualTo(2));
-            Assert.That(rows[0].FootnoteCode, Is.EqualTo("F1"));
+            Assert.That(rows[0].FootnoteCode, Is.EqualTo("1"));
             Assert.That(rows[0].FootnoteText, Is.EqualTo("This is a footnote"));
-            Assert.That(rows[1].FootnoteCode, Is.EqualTo("F2"));
+            Assert.That(rows[1].FootnoteCode, Is.EqualTo("2"));
             Assert.That(rows[1].FootnoteText, Is.EqualTo("This is another footnote"));
         });
     }
