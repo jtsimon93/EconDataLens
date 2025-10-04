@@ -1,8 +1,9 @@
 using EconDataLens.Data;
 using Microsoft.EntityFrameworkCore;
 
-[SetUpFixture]
-public class DbReset
+namespace EconDataLens.Tests;
+
+public static class DbReset
 {
     public static async Task RecreateDatabaseAsync(string connectionString)
     {
